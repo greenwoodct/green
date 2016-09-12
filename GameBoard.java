@@ -1,0 +1,265 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class GameBoard {
+	public static final int EMPTY = 0;
+	public static final int COMPUTER = 10;
+	public static final int PLAYER = 20;
+	public static final int ROWS = 3, COLS = 3; // number of rows and columns
+	int[][] board = 
+		{{0,0,0},
+		 {0,0,0},
+		 {0,0,0}};	
+
+	List<int[]> moves = new ArrayList<int[]>();
+	//--------------------------------------------------------------------------
+	// Print game board
+	//--------------------------------------------------------------------------
+	public void printBoard() {
+		for (int row = 0; row < ROWS; ++row) {
+			for (int col = 0; col < COLS; ++col) {
+				printCell(board[row][col]); // print each of the cells
+				if (col != COLS - 1) {
+					System.out.print("|"); // print vertical partition
+				}
+			}
+			System.out.println();
+			if (row != ROWS - 1) {
+				System.out.println("-----------"); // print horizontal partition
+			}
+		}
+		System.out.println();
+	}
+
+	/** Print a cell with the specified "content" */
+	public void printCell(int content) {
+		switch (content) {
+		case EMPTY:
+			System.out.print("   ");
+			break;
+		case PLAYER:
+			System.out.print(" O ");
+			break;
+		case COMPUTER:
+			System.out.print(" X ");
+			break;
+		}
+	}
+	
+	//--------------------------------------------------------------------------
+	// Make a move on the game board
+	//--------------------------------------------------------------------------
+	public boolean makeMove(int[] move, int player) {
+		return makeMove(move[0], move[1], player);
+	}
+	
+	public boolean makeMove(int row, int col, int player) {
+		int[] move = new int[2];
+		move[0] = row;
+		move[1] = col;
+		moves.add(move);
+		board[row][col] = player;
+		return hasWon(player, row, col);
+	}
+	public static int[] nextRandomSpot(int[][] boardIn, int selector) {
+		int count = openSpotCount(boardIn, selector);
+		
+		if (count > 0) {
+			Random generator = new Random(count);
+			int index = Math.abs(generator.nextInt())%count;
+			int[] spot = new int[2];
+			for (int row = 0; row < ROWS; ++row) {
+				for (int col = 0; col < COLS; ++col) {
+					if (boardIn[row][col] < selector) {						
+						if (index == 0) {
+							spot[0] = row;
+							spot[1] = col;							
+							return spot;
+						}
+						index--;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	public boolean hasWon(int player, int currentRow, int currentCol) {
+	   return (board[currentRow][0] == player         // 3-in-the-row
+	                && board[currentRow][1] == player
+	                && board[currentRow][2] == player
+	           || board[0][currentCol] == player      // 3-in-the-column
+	                && board[1][currentCol] == player
+	                && board[2][currentCol] == player
+	           || currentRow == currentCol            // 3-in-the-diagonal
+	                && board[0][0] == player
+	                && board[1][1] == player
+	                && board[2][2] == player
+	           || currentRow + currentCol == 2  // 3-in-the-opposite-diagonal
+	                && board[0][2] == player
+	                && board[1][1] == player
+	                && board[2][0] == player);
+	}
+	
+	public boolean isOpen(int row, int col) {
+		return row >= 0 && row < ROWS && col >= 0 && col < COLS && board[row][col] == 0;
+	}
+	
+	public static int openSpotCount(int[][] boardIn, int selector) {
+		int count = 0;
+		for (int row = 0; row < ROWS; ++row) {
+			for (int col = 0; col < COLS; ++col) {
+				if (boardIn[row][col] < selector) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+	public int openSpotCount() {
+		return openSpotCount(board, COMPUTER);
+	}
+
+	public static boolean isDraw(int[][] boardIn, int selector) {		
+		return openSpotCount(boardIn, selector) == 0;
+	}
+	public int[][] cloneBoard() {
+		int[][] newBoard = new int[ROWS][COLS];
+		for (int row = 0; row < ROWS; ++row) {
+			for (int col = 0; col < COLS; ++col) {
+				newBoard[row][col] = board[row][col];
+			}
+		}
+		return newBoard;
+	}
+	
+	//--------------------------------------------------------------------------
+	// Move history in string. i.e.: (1,2)-(2,2)-(3,1)-(1,1)-(1,3)
+	//--------------------------------------------------------------------------
+	public String movePath(int[] nextMove) {
+		String path = movePath();
+		if (path.length() > 0) {
+			path += ("-" +  moveToString(nextMove));
+		}
+		else {
+			path = moveToString(nextMove);
+			
+		}
+		return path;
+	}
+	public String movePath() {
+		return movePath(moves);	
+	}
+	public String prevMovePath() {
+		return prevMovePath(0);			
+	}
+	
+	public String prevMovePath(int inc) {
+		List<int[]> prevMoves = new ArrayList<int[]>();
+		prevMoves.addAll(moves);
+		if (moves.size() > 1) {
+			prevMoves.remove(moves.size() -1);
+		}
+		return movePath(prevMoves, inc);			
+	}
+	
+	public String movePath(List<int[]> prevMoves) {
+		return movePath(prevMoves, 0);
+	}
+	
+	public String movePath(List<int[]> prevMoves, int inc) {
+		String path = "";
+		if (prevMoves.size() > 0) {
+			for (int[] move : prevMoves) {
+				String moveString =  moveToString(moveTurn(move, inc));
+				if (path.length() == 0) {
+					path = moveString;
+				}
+				else {
+					path += ("-" + moveString);
+				}
+			}
+		}
+		return path;
+	}
+	String  moveToString(int[] move) {
+		return  "(" + (move[0]+1) + "," + (move[1]+1) + ")";
+	}
+	
+	//--------------------------------------------------------------------------
+	// One losing combination can be converted into 4 if you rotate the grid by 
+	//  90, 180, and 270 degrees
+	//--------------------------------------------------------------------------
+	public static int [] moveTurn(int[] move, int inc) {
+		if (inc <= 0) {
+			return move;
+		}
+		int index = movetoIndex(move);
+		if (index > -1) {
+			index += inc;
+			index = index%9;
+			return indexToMove(index);
+		}
+		else {
+			return move;
+		}
+	}
+	public static int movetoIndex(int[] move) {
+		int index = -1;
+		if (move[0] == 0 && move[1] == 0) {
+			index = 0;
+		}
+		else if (move[0] == 0 && move[1] == 1) {
+			index = 1;
+		}
+		else if (move[0] == 0 && move[1] == 2) {
+			index = 3;
+		}
+		else if (move[0] == 1 && move[1] == 2) {
+			index = 4;
+		}
+		else if (move[0] == 2 && move[1] == 2) {
+			index = 5;
+		}
+		else if (move[0] == 2 && move[1] == 1) {
+			index = 6;
+		}
+		else if (move[0] == 2 && move[1] == 0) {
+			index = 7;
+		}
+		else if (move[0] == 1 && move[1] == 0) {
+			index = 8;
+		}
+		
+		return index;
+	}
+	public static int[] indexToMove(int index) {
+		int[] move = new int[2];
+		if (index == 0) {
+			move[0] = 0; move[1] = 0;
+		}
+		else if (index == 1) {
+			move[0] = 0; move[1] = 1;
+		}
+		else if (index == 3) {
+			move[0] = 0; move[1] = 2;
+		}
+		else if (index == 4) {
+			move[0] = 1; move[1] = 2;
+		}
+		else if (index == 5) {
+			move[0] = 2; move[1] = 2;
+		}
+		else if (index == 6) {
+			move[0] = 2; move[1] = 1;
+		}
+		else if (index == 7 ) {
+			move[0] = 2; move[1] = 0;
+		}
+		else if (index == 8) {
+			move[0] = 1; move[1] = 0;
+		}
+		
+		return move;
+	}
+}

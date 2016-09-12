@@ -213,22 +213,22 @@ public class GameBoard {
 			index = 1;
 		}
 		else if (move[0] == 0 && move[1] == 2) {
-			index = 3;
+			index = 2;
 		}
 		else if (move[0] == 1 && move[1] == 2) {
-			index = 4;
+			index = 3;
 		}
 		else if (move[0] == 2 && move[1] == 2) {
-			index = 5;
+			index = 4;
 		}
 		else if (move[0] == 2 && move[1] == 1) {
-			index = 6;
+			index = 5;
 		}
 		else if (move[0] == 2 && move[1] == 0) {
-			index = 7;
+			index = 6;
 		}
 		else if (move[0] == 1 && move[1] == 0) {
-			index = 8;
+			index = 7;
 		}
 		
 		return index;
@@ -241,22 +241,22 @@ public class GameBoard {
 		else if (index == 1) {
 			move[0] = 0; move[1] = 1;
 		}
-		else if (index == 3) {
+		else if (index == 2) {
 			move[0] = 0; move[1] = 2;
 		}
-		else if (index == 4) {
+		else if (index == 3) {
 			move[0] = 1; move[1] = 2;
 		}
-		else if (index == 5) {
+		else if (index == 4) {
 			move[0] = 2; move[1] = 2;
 		}
-		else if (index == 6) {
+		else if (index == 5) {
 			move[0] = 2; move[1] = 1;
 		}
-		else if (index == 7 ) {
+		else if (index == 6 ) {
 			move[0] = 2; move[1] = 0;
 		}
-		else if (index == 8) {
+		else if (index == 7) {
 			move[0] = 1; move[1] = 0;
 		}
 		

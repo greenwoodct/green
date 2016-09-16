@@ -162,7 +162,4 @@ public class GameBoard {
 		}
 		return MovePath.movePath(prevMoves, inc);			
 	}
-	
-	
-	
 }

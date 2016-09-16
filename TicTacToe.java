@@ -25,7 +25,9 @@ public class TicTacToe {
 		if (status == COMPUTER_WON) {
 			System.out.println("Computer won! Bye!");
 		} else if (status == PLAYER_WON) {
-			Strategy.recordLostGame(gameBoard);
+			if (!Strategy.isLostBefore(gameBoard)) {
+				Strategy.recordLostGame(gameBoard);
+			}
 			System.out.println("You won! Bye!");
 		} else if (status == DRAW) {
 			System.out.println("It's a Draw! Bye!");

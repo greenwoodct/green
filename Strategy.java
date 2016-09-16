@@ -36,5 +36,10 @@ public class Strategy {
 		return lostMoves.containsKey(movePath);
 		
 	}
+	public static boolean isLostBefore(GameBoard boardGame) {
+		String movePath =  boardGame.movePath();
+		return lostMoves.containsKey(movePath);
+		
+	}
 
 }

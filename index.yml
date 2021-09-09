@@ -1,0 +1,4 @@
+router_config:
+  folder: /
+  file_name: router.yml
+  format: yaml
